@@ -71,14 +71,6 @@ async def insult(ctx: discord.Interaction, user: discord.User):
     response = await AsyncClient().chat(model="mistral", messages=[{'role': 'user', 'content': prompt}])
     print("Got response", response)
     await ctx.followup.send(response["message"]["content"],)# username=ctx.user.nick, avatar_url=ctx.user.guild_avatar.url)
-#@insult.error
-async def insult_error(ctx: discord.Interaction, error: ac.AppCommandError):
-    if isinstance(error, ac.UserNotFound):
-        await ctx.response.send_message("I couldn't find that user.", ephemeral=True)
-    elif isinstance(error, ac.UserNotInGuild):
-        await ctx.response.send_message("That user isn't in this guild.", ephemeral=True)
-    else:
-        await ctx.response.send_message("An error occurred.", ephemeral=True)
 
 try:
     with open(".env", "r") as f:
