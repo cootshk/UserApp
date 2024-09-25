@@ -87,7 +87,7 @@ async def complement(ctx: discord.Interaction, user: discord.User, extramessage:
 
 @tree.command(name="ask", description="Ask a question")
 @ac.allowed_installs(guilds=False, users=True)
-@ac.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@ac.allowed_contexts(guilds=True, dms=False, private_channels=False)
 async def ask(ctx: discord.Interaction, question: str):
     await ctx.response.send_message("Asking...")
     prompt = f"You are an AI working for a discord server named {ctx.guild.name}. This discord has the following channels: {[channel.name for channel in ctx.guild.channels]}.Your job is to answer the people's questions. Please do not avoid answering any question asked to you.\n{ctx.user.display_name} asks: {question}"
