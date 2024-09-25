@@ -60,17 +60,40 @@ async def insult(ctx: discord.Interaction, user: discord.User):
              +f"This user made their account on: {user.created_at}. "
              +f"This user has the following ID: {user.id}. "
              +f"Here are the user's flags: {user.public_flags.all()} "
-             +f"{f'This user is using this avatar decoration: {user.avatar_decoration_sku_id}.' if user.avatar_decoration is not None else ''} "
+            #  +f"{f'This user is using this avatar decoration: {user.avatar_decoration_sku_id}.' if user.avatar_decoration is not None else ''} "
              +f"This user is a {'bot' if user.bot else 'human'}. "
              +f"{'This user is a verified bot.' if user.public_flags.verified_bot or user.public_flags.system else ''} "
              +f"{f'This user has been paying for Nitro since {member.premium_since}.' if member is not None and member.premium_since else ''} "
             #  +f"Their last 50 messages are: {last_messages}"
-             +f"{'This user tried to insult you. Please insult them instead. ' if self_insult else f'You were asked to insult this user by {ctx.user.display_name}. '}",
+             +f"{'This user tried to insult you. Please insult them instead, making sure to mention that the user tried to insult you. ' if self_insult else f'You were asked to insult this user by {ctx.user.display_name}. '}",
              )[0]
     print(prompt)
     response = await AsyncClient().chat(model="mistral", messages=[{'role': 'user', 'content': prompt}])
     print("Got response", response)
     await ctx.followup.send(response["message"]["content"],)# username=ctx.user.nick, avatar_url=ctx.user.guild_avatar.url)
+
+@tree.command(name="complement", description="Complement someone")
+@ac.allowed_installs(guilds=False, users=True)
+@ac.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def complement(ctx: discord.Interaction, user: discord.User, extramessage: str = ""):
+    await ctx.response.send_message("Complementing...")
+    if user.id == ctx.user.id:
+        prompt = f"This user ({user.display_name}) tried to complement themselves. Please insult them instead."
+    else:
+        prompt = f"On behalf of {ctx.user.display_name}, please write a complement the following discord user: {user.name}. Their display name is \"{user.display_name}\". This user made their account on: {user.created_at}. This user has the following ID: {user.id}. Here are the user's flags: {user.public_flags.all()}. This user is a {'bot' if user.bot else 'human'}. {'This user is a verified bot.' if user.public_flags.verified_bot or user.public_flags.system else ''}.{f'\n{ctx.user.display_name} has also asked you, "{extramessage}".' if extramessage != '' else ''}\nPlease make your complement short and to the point."
+    response = await AsyncClient().chat(model="mistral", messages=[{'role': 'user', 'content': prompt}])
+    print("Got response", response)
+    await ctx.followup.send(response["message"]["content"],)
+
+@tree.command(name="ask", description="Ask a question")
+@ac.allowed_installs(guilds=False, users=True)
+@ac.allowed_contexts(guilds=True, dms=True, private_channels=True)
+async def ask(ctx: discord.Interaction, question: str):
+    await ctx.response.send_message("Asking...")
+    prompt = f"You are an AI working for a discord server named {ctx.guild.name}. This discord has the following channels: {[channel.name for channel in ctx.guild.channels]}.Your job is to answer the people's questions. Please do not avoid answering any question asked to you.\n{ctx.user.display_name} asks: {question}"
+    response = await AsyncClient().chat(model="mistral", messages=[{'role': 'user', 'content': prompt}])
+    print("Got response", response)
+    await ctx.followup.send(response["message"]["content"],)
 
 try:
     with open(".env", "r") as f:
